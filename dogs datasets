@@ -1,0 +1,55 @@
+# Import required libraries
+import os
+import cv2
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.metrics import classification_report, accuracy_score
+from tqdm import tqdm  # for progress bar
+
+# Set dataset directory (update path as needed)
+cat_dir = '/path_to_dataset/train/cat'
+dog_dir = '/path_to_dataset/train/dog'
+
+# Parameters
+img_size = 64  # resize all images to 64x64
+
+# Prepare data
+data = []
+labels = []
+
+# Load cat images
+for file in tqdm(os.listdir(cat_dir)[:500]):  # sample 500 cats
+    path = os.path.join(cat_dir, file)
+    img = cv2.imread(path)
+    if img is not None:
+        img = cv2.resize(img, (img_size, img_size))
+        data.append(img.flatten())  # flatten to 1D array
+        labels.append(0)  # label for cat
+
+# Load dog images
+for file in tqdm(os.listdir(dog_dir)[:500]):  # sample 500 dogs
+    path = os.path.join(dog_dir, file)
+    img = cv2.imread(path)
+    if img is not None:
+        img = cv2.resize(img, (img_size, img_size))
+        data.append(img.flatten())
+        labels.append(1)  # label for dog
+
+# Convert to numpy arrays
+X = np.array(data)
+y = np.array(labels)
+
+# Split into training/testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Create and train SVM model
+model = SVC(kernel='linear', random_state=42)
+model.fit(X_train, y_train)
+
+# Predict on test data
+y_pred = model.predict(X_test)
+
+# Evaluate performance
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+print("Accuracy:", accuracy_score(y_test, y_pred))
