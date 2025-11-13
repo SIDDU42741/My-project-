@@ -1,0 +1,41 @@
+# Import required libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+
+# Example dataset: Customer annual income and spending score
+data = {
+    'CustomerID': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    'Annual_Income': [15, 16, 17, 18, 25, 26, 28, 45, 46, 47],
+    'Spending_Score': [39, 81, 6, 77, 40, 76, 6, 77, 40, 76]
+}
+
+df = pd.DataFrame(data)
+
+# Select features for clustering
+X = df[['Annual_Income', 'Spending_Score']]
+
+# Create KMeans model (assume 3 clusters)
+kmeans = KMeans(n_clusters=3, random_state=42)
+
+# Fit the model
+kmeans.fit(X)
+
+# Get cluster labels
+df['Cluster'] = kmeans.labels_
+
+# Get cluster centroids
+centroids = kmeans.cluster_centers_
+
+print("Cluster Centers:\n", centroids)
+print("\nCustomer Data with Cluster Labels:\n", df)
+
+# Visualize clusters
+plt.figure(figsize=(8, 6))
+plt.scatter(df['Annual_Income'], df['Spending_Score'], c=df['Cluster'], cmap='rainbow', s=100)
+plt.scatter(centroids[:, 0], centroids[:, 1], c='black', s=200, marker='X', label='Centroids')
+plt.title('Customer Segments based on Purchase History')
+plt.xlabel('Annual Income (k$)')
+plt.ylabel('Spending Score (1–100)')
+plt.legend()
+plt.show()
